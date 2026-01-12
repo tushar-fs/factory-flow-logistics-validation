@@ -6,11 +6,11 @@
 
 ### App UI
 
-![App Screenshot](screenshots/app-ui.png)
+![App Screenshot](docs/screenshots/app-ui.png)
 
 ### Tests Passing
 
-![Tests Passing](screenshots/tests-passing.png)
+![Tests Passing](docs/screenshots/tests-passing.png)
 
 ## What This Is
 
