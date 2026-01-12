@@ -27,8 +27,10 @@ htmlcov/
 coverage.xml
 *.cover
 reports/
-screenshots/
 allure-results/
+
+# Keep docs/screenshots (for README), ignore root screenshots
+/screenshots/
 
 # Distribution / packaging
 dist/
