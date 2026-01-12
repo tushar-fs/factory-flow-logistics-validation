@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: factoryflow-db
+    environment:
+      POSTGRES_USER: factoryflow
+      POSTGRES_PASSWORD: factoryflow
+      POSTGRES_DB: factoryflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U factoryflow -d factoryflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - factoryflow
+
+  app:
+    build: .
+    container_name: factoryflow-app
+    environment:
+      DATABASE_URL: postgresql://factoryflow:factoryflow@db:5432/factoryflow
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - factoryflow
+
+  # Only starts with: docker compose --profile testing up
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: factoryflow-selenium
+    profiles:
+      - testing
+    shm_size: 2gb
+    ports:
+      - "4444:4444"
+      - "7900:7900"  # VNC for debugging
+    networks:
+      - factoryflow
+
+networks:
+  factoryflow:
+    driver: bridge
+
+volumes:
+  postgres_data:

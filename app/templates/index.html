@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactoryFlow - Inventory</title>
+    <style>
+        :root {
+            --bg: #000;
+            --bg-card: #1a1a1a;
+            --text: #fff;
+            --text-muted: #888;
+            --accent: #e31937;
+            --border: #333;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        .container { max-width: 1100px; margin: 0 auto; }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+        .subtitle { color: var(--text-muted); }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+        
+        .card h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+        
+        .form-group { margin-bottom: 0.75rem; }
+        
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.6rem;
+            background: #111;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.7rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        
+        button:hover { opacity: 0.9; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background: #111;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        tr:last-child td { border-bottom: none; }
+        
+        .location-tag {
+            background: #222;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        footer a { color: var(--accent); }
+        
+        @media (max-width: 700px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header data-testid="page-header">
+            <h1 data-testid="page-title">⚡ FactoryFlow</h1>
+            <p class="subtitle">Inventory Management</p>
+        </header>
+        
+        <div class="grid">
+            <div class="card" data-testid="add-item-card">
+                <h2>📦 Add Item</h2>
+                <form action="/add-item-form" method="POST" data-testid="add-item-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required
+                               data-testid="input-item-name" 
+                               placeholder="e.g., Tesla Model S Battery">
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" min="1" required
+                               data-testid="input-item-quantity" placeholder="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <select id="location" name="location" required data-testid="select-item-location">
+                            <option value="Warehouse A">Warehouse A</option>
+                            <option value="Warehouse B">Warehouse B</option>
+                            <option value="Warehouse C">Warehouse C</option>
+                        </select>
+                    </div>
+                    <button type="submit" data-testid="btn-add-item">Add Item</button>
+                </form>
+            </div>
+            
+            <div class="card" data-testid="move-item-card">
+                <h2>🚚 Move Inventory</h2>
+                <form action="/move-item-form" method="POST" data-testid="move-item-form">
+                    <div class="form-group">
+                        <label for="item_name">Item Name</label>
+                        <input type="text" id="item_name" name="item_name" required
+                               data-testid="input-move-item-name" placeholder="Exact item name">
+                    </div>
+                    <div class="form-group">
+                        <label for="move_qty">Quantity</label>
+                        <input type="number" id="move_qty" name="quantity" min="1" required
+                               data-testid="input-move-quantity" placeholder="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="from_loc">From</label>
+                        <select id="from_loc" name="from_location" required data-testid="select-from-location">
+                            {% for loc in locations %}
+                            <option value="{{ loc }}">{{ loc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="to_loc">To</label>
+                        <select id="to_loc" name="to_location" required data-testid="select-to-location">
+                            {% for loc in locations %}
+                            <option value="{{ loc }}">{{ loc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" data-testid="btn-move-item">Move</button>
+                </form>
+            </div>
+        </div>
+        
+        <section data-testid="inventory-section">
+            <h2 style="margin-bottom: 1rem;">📋 Inventory</h2>
+            
+            {% if items %}
+            <table data-testid="inventory-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Qty</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody data-testid="inventory-table-body">
+                    {% for item in items %}
+                    <tr data-testid="inventory-row-{{ item.id }}"
+                        data-item-name="{{ item.name }}"
+                        data-item-location="{{ item.location }}">
+                        <td data-testid="item-id-{{ item.id }}">{{ item.id }}</td>
+                        <td data-testid="item-name-{{ item.id }}">{{ item.name }}</td>
+                        <td data-testid="item-quantity-{{ item.id }}">{{ item.quantity }}</td>
+                        <td><span class="location-tag" data-testid="item-location-{{ item.id }}">{{ item.location }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state" data-testid="empty-inventory-message">
+                No items yet. Add one above.
+            </div>
+            {% endif %}
+        </section>
+        
+        <footer>
+            <a href="/docs" data-testid="link-api-docs">API Docs</a> · 
+            <a href="/health" data-testid="link-health">Health</a>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+name: Quality Gate
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  APP_URL: "http://localhost:8000"
+  DATABASE_URL: "postgresql://factoryflow:factoryflow@localhost:5432/factoryflow"
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: factoryflow
+          POSTGRES_PASSWORD: factoryflow
+          POSTGRES_DB: factoryflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      selenium:
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
+        options: --shm-size=2gb
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Start app
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      - name: Wait for app
+        run: |
+          for i in {1..30}; do
+            curl -s http://localhost:8000/health && exit 0
+            sleep 2
+          done
+          exit 1
+
+      - name: Run API tests
+        run: pytest tests/api/ -v -m "api or smoke"
+
+      - name: Run data integrity tests
+        run: pytest tests/data/ -v -m "data"
+
+      - name: Run UI tests
+        run: pytest tests/ui/ -v -m "ui or smoke"
+        env:
+          SELENIUM_REMOTE_URL: "http://localhost:4444/wd/hub"
+          HEADLESS: "true"
+
+      - name: Run full suite with coverage
+        run: |
+          pytest tests/ -v \
+            --cov=app \
+            --cov-report=html:reports/coverage \
+            --html=reports/report.html \
+            --self-contained-html
+        env:
+          SELENIUM_REMOTE_URL: "http://localhost:4444/wd/hub"
+          HEADLESS: "true"
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: reports/
+
+  build:
+    name: Build Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build image
+        run: docker build -t factoryflow:${{ github.sha }} .
