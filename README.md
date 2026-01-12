@@ -4,9 +4,6 @@
 
 ## Demo
 
-<details>
-<summary>📸 Screenshots (click to expand)</summary>
-
 ### App UI
 
 ![App Screenshot](screenshots/app-ui.png)
@@ -14,12 +11,6 @@
 ### Tests Passing
 
 ![Tests Passing](screenshots/tests-passing.png)
-
-### CI/CD Pipeline
-
-![GitHub Actions](screenshots/github-actions.png)
-
-</details>
 
 ## What This Is
 
